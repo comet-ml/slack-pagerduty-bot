@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "slack-pagerduty-bot.fullname" . }}
+  labels:
+    {{- include "slack-pagerduty-bot.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "slack-pagerduty-bot.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "slack-pagerduty-bot.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "slack-pagerduty-bot.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DEBUG # Changed from DEBUG_MODE to align with typical app expectations
+              value: {{ .Values.config.debug | quote }}
+            - name: ALLOWED_CHANNELS
+              value: {{ .Values.config.allowedChannels | quote }}
+
+            {{- if .Values.secrets.existingSecretName }}
+            # ---- OPTION 1: Use existing Kubernetes Secret ----
+            # All keys from the specified secret will become environment variables.
+          envFrom:
+            - secretRef:
+                name: {{ .Values.secrets.existingSecretName }}
+            {{- else if .Values.secrets.developmentValues }}
+            # ---- OPTION 2: Use development values (if existingSecretName is not set) ----
+            - name: SLACK_BOT_TOKEN
+              value: {{ .Values.secrets.developmentValues.SLACK_BOT_TOKEN | quote }}
+            - name: SLACK_APP_TOKEN
+              value: {{ .Values.secrets.developmentValues.SLACK_APP_TOKEN | quote }}
+            - name: PAGERDUTY_INTEGRATION_KEY # Ensure app reads this env var
+              value: {{ .Values.secrets.developmentValues.PAGERDUTY_INTEGRATION_KEY | quote }}
+            # Add other development secrets here if defined in values.yaml
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }} 

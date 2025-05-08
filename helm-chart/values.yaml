@@ -1,0 +1,74 @@
+# Default values for slack-pagerduty-bot
+
+# Should be 1
+replicaCount: 1
+
+image:
+  repository: slack-pagerduty-bot
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext:
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  runAsUser: 1000
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Application specific configuration
+config:
+  # Enable debug logging
+  debug: false
+  
+  # List of allowed Slack channels (comma-separated)
+  # Example: "C012345,general"
+  # aws hadron channels
+  allowedChannels: "***REMOVED***"
+
+# Secret management configuration
+secrets:
+  # Option 1: Use an existing Kubernetes Secret (e.g., managed by your external controller)
+  # Set this to the name of your K8s Secret. If provided, 'developmentValues' are ignored.
+  # For your case, this should be "slack-pagerduty-secret"
+  existingSecretName: "slack-pagerduty-secret"
+
+  # Option 2: For local development ONLY if 'existingSecretName' is not set or is empty.
+  # These values are used to directly set environment variables.
+  # DO NOT commit real secrets here for production.
+  developmentValues:
+    SLACK_BOT_TOKEN: ""
+    SLACK_APP_TOKEN: ""
+    PAGERDUTY_INTEGRATION_KEY: "" 

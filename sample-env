@@ -1,0 +1,11 @@
+# Slack configuration
+SLACK_BOT_TOKEN=xoxb-your-bot-token
+SLACK_APP_TOKEN=xapp-your-app-token
+
+# PagerDuty configuration - use the "Integration Key" from your PagerDuty Events API v2 integration
+PAGERDUTY_INTEGRATION_KEY=your-integration-key
+
+# General configuration
+DEBUG=False
+# You can use channel IDs and/or channel names
+ALLOWED_CHANNELS=C0123456789,general,customer-support 
