@@ -84,7 +84,7 @@ class SlackPagerDutyBot:
 
     def _register_handlers(self):
         """Register all message and action handlers."""
-        # Listen for messages that mention the bot
+        # Listen for messages that mention the bot (specific keywords)
         keywords = re.compile(r"alert|trigger|escalate|page", re.IGNORECASE)
         self.app.message(keywords)(self._handle_alert_message)
 
@@ -94,6 +94,10 @@ class SlackPagerDutyBot:
         # Register action handlers
         self.app.action("trigger_alert")(self._handle_trigger_action)
         self.app.action("cancel_alert")(self._handle_cancel_action)
+
+        # Add the general message handler *after* the specific keyword handler
+        # This ensures it only catches messages not handled above.
+        self.app.event("message")(self._handle_message_events)
 
         # Error handler
         self.app.error(self._handle_error)
@@ -348,6 +352,24 @@ class SlackPagerDutyBot:
         """
         logger.error(f"Error: {error}")
         logger.debug(f"Request body: {body}")
+
+    def _handle_message_events(self, body, logger):
+        """Handle generic message events not caught by specific handlers."""
+        event = body.get("event", {})
+        channel_id = event.get("channel")
+        channel_type = event.get("channel_type")
+        user_id = event.get("user")  # Added user ID for context
+        text = event.get("text", "")  # Added text for context
+        
+        # Avoid logging bot's own messages or messages without user/channel
+        if event.get("subtype") == "bot_message" or not user_id or not channel_id:  # noqa: E501
+            return
+
+        logger.info(
+            f"Unhandled msg in {channel_id} ({channel_type}) "
+            f"from {user_id}. "
+            f"Text: '{text[:40]}...'"  # Log first 40 chars
+        )
 
     def start(self):
         """Start the Slack bot in Socket Mode."""
