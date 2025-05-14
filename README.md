@@ -102,3 +102,9 @@ Configuration is done through environment variables or Kubernetes secrets:
 
 The `ALLOWED_CHANNELS` setting supports both channel IDs (starting with 'C') and human-readable channel names (like 'general'). Channel names will be automatically resolved to IDs at startup.
 
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
