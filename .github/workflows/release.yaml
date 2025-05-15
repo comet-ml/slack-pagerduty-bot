@@ -1,0 +1,108 @@
+name: "Release"
+run-name: "Release v${{inputs.version}} by @${{ github.actor }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        required: true
+        description: "Version to release (without v prefix)"
+
+env:
+  DOCKER_REGISTRY: "ghcr.io/comet-ml/slack-pagerduty-bot"
+
+jobs:
+
+  push-latest-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag and push latest
+        run: |
+          docker pull ${{ env.DOCKER_REGISTRY }}:${{ inputs.version }}
+          docker tag ${{ env.DOCKER_REGISTRY }}:${{ inputs.version }} ${{ env.DOCKER_REGISTRY }}:latest
+          docker push ${{ env.DOCKER_REGISTRY }}:latest
+          echo "Version ${{ inputs.version }} tagged as latest" >> $GITHUB_STEP_SUMMARY
+
+  create-github-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: "Release v${{ inputs.version }}"
+          generate_release_notes: true
+
+      - name: Release Summary
+        run: |
+          echo "### GitHub Release Created" >> $GITHUB_STEP_SUMMARY
+          
+
+  publish-helm-chart:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          path: 'src'
+
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: 'gh-pages'
+          path: 'dest'
+          fetch-depth: 0
+          # Create gh-pages branch if it doesn't exist
+          create-branch: true
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'latest'
+
+      - name: Lint Helm chart
+        working-directory: src
+        run: |
+          cd helm-chart
+          helm lint --strict .
+
+      - name: Package Helm chart
+        run: |
+          mkdir -p dest/charts
+          cd src/helm-chart
+          helm package --version ${{ inputs.version }} --app-version ${{ inputs.version }} . -d ../../dest/charts
+          cp README.md ../../dest/ || echo "No README.md found"
+
+      - name: Update Helm repository index
+        working-directory: dest
+        run: |
+          helm repo index . --url https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@comet.com"
+          git add .
+          git commit -m "Release Helm chart ${{ inputs.version }}"
+          git push
+
+      - name: Helm Chart Summary
+        run: |
+          echo "### Helm Chart Published" ${{ inputs.version }} >> $GITHUB_STEP_SUMMARY
+         
