@@ -72,3 +72,18 @@ secrets:
     SLACK_BOT_TOKEN: ""
     SLACK_APP_TOKEN: ""
     PAGERDUTY_INTEGRATION_KEY: "" 
+
+# External Secrets configuration
+# This allows fetching secrets from external sources like AWS Secrets Manager
+# See: https://external-secrets.io/latest/
+# externalSecrets:
+#   # Example: Fetch secrets from AWS Secrets Manager
+#   - name: "slack-pagerduty-bot"
+#     refreshInterval: "5m"
+#     # dataFrom fetches all keys from a specific secret path
+#     dataFrom:
+#       - extract:
+#           key: slack-pagerduty-bot/config
+#           # Optional: specify conversion strategy for the data
+#           # conversionStrategy: Default
+#           # decodingStrategy: None
