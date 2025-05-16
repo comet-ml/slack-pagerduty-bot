@@ -56,7 +56,7 @@ config:
   # List of allowed Slack channels (comma-separated)
   # Example: "C012345,general"
   # aws hadron channels
-  allowedChannels: "***REMOVED***"
+  allowedChannels: "C086N13LL57,C079WSKH467"
 
 # Secret management configuration
 secrets:

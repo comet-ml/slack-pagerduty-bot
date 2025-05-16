@@ -66,7 +66,7 @@ helm upgrade --install slack-pagerduty-bot -n slack-pagerduty-bot --create-names
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
-| config.allowedChannels | string | `"***REMOVED***"` |  |
+| config.allowedChannels | string | `"C086N13LL57,C079WSKH467"` |  |
 | config.debug | bool | `false` |  |
 | fullnameOverride | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |

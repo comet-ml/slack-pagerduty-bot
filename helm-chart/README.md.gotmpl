@@ -18,14 +18,6 @@
     - `kubectx` and `kubens` - easy switch context/namespaces for kubectl -  https://github.com/ahmetb/kubectx
 
 
-## Run k8s cluster locally
-
-Start your `minikube` cluster https://minikube.sigs.k8s.io/docs/start/
-
-```bash
-minikube start
-```
-
 ## Installing the Chart
 
 ### Using helm chart from Helm repo
@@ -39,7 +31,7 @@ helm repo update
 Set VERSION you want to install and run helm install 
 
 ```bash
-VERSION=0.1.0
+VERSION=1.0.1
 helm upgrade --install slack-pagerduty-bot -n slack-pagerduty-bot --create-namespace slack-pagerduty-bot/slack-pagerduty-bot --set image.tag=$VERSION
 ```
 
@@ -54,7 +46,7 @@ Go to the chart folder, set VERSION you want to install and run helm install
 ```bash
 cd helm-chart
 helm dependency build
-VERSION=0.1.0
+VERSION=1.0.1
 helm upgrade --install slack-pagerduty-bot -n slack-pagerduty-bot --create-namespace -f values.yaml \
     --set image.tag=$VERSION
 ```
