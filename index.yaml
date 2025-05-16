@@ -1,0 +1,23 @@
+apiVersion: v1
+entries:
+  slack-pagerduty-bot:
+  - apiVersion: v2
+    appVersion: 1.0.1
+    created: "2025-05-16T11:23:56.727624503Z"
+    description: A Slack bot that integrates with PagerDuty to trigger escalations
+    digest: 3d486513e4bc947372017079c2e915d6eaaf462bfff18f40551df163e94ba524
+    keywords:
+    - slack
+    - pagerduty
+    - bot
+    - incident
+    - on-call
+    maintainers:
+    - email: thales@comet.com
+      name: Thales Ceolin
+    name: slack-pagerduty-bot
+    type: application
+    urls:
+    - https://raw.githubusercontent.com/comet-ml/slack-pagerduty-bot/gh-pages/charts/slack-pagerduty-bot-1.0.1.tgz
+    version: 1.0.1
+generated: "2025-05-16T11:23:56.726404054Z"
